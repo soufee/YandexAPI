@@ -24,7 +24,7 @@ public class YandexTranslate {
         dataOutputStream.writeBytes("text=" + URLEncoder.encode(input, "UTF-8") + "&lang=" + lang);
 
         InputStream response = connection.getInputStream();
-        String json = new java.util.Scanner(response).nextLine();
+        String json = new Scanner(response).nextLine();
         int start = json.indexOf("[");
         int end = json.indexOf("]");
         String translated = json.substring(start + 2, end - 1);
