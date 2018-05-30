@@ -1,78 +1,126 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    private static final String SOURCE = "C:/tmp/PegaRULES.txt";
 
+    public static void main(String[] args) throws IOException {
+        Set<String> contracts = getListOfWrongHash(SOURCE);
+        Map<String, String> detailedContracts = getDifferenceOfHashWrongContracts(SOURCE, contracts);
+        analize(detailedContracts);
     }
 
+    private static void analize(Map<String, String> contracts) {
+        List <String> list = new ArrayList<>();
+        for (Map.Entry<String, String> entry: contracts.entrySet()) {
+            System.out.println(entry.getKey());
+            String s = entry.getValue();
+            String[] data = s.split(";");
+           if (data[0].equals("")){
+               System.out.println("В договоре нет допсов");
+           } else {
+               System.out.println("Допсы по договору: ");
+               System.out.println(data[0]);
+           }
+            if (data[1].trim().equals(data[2].trim())){
+                int sectionsNum = Integer.parseInt(data[1].trim());
+                System.out.println("Количество секций в диасофте и пеге совпадает: "+sectionsNum);
+                for (int i = 3; i < 3+sectionsNum; i++) {
+                    System.out.println("Секция "+(i-2)+" в Пега: "+data[i].trim());
+                }
+                for (int i = 3+sectionsNum; i < 3+sectionsNum*2; i++) {
+                    System.out.println("Секция "+(i-2-sectionsNum)+" в Диасофт: "+data[i].trim());
+                }
 
-//        FileInputStream fstream = new FileInputStream("C:/tmp/FullStatistic.txt");
-//        BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-//        String strLine;
-//            while ((strLine = br.readLine()) != null) {
-//               int size = strLine.length();
-//                if (strLine.contains(";")) {
-//                    int first = strLine.indexOf(";")+2;
-//                    String s = strLine.substring(first, size);
-//                    System.out.println(s);
-//                }
-//
-//
-//            }
-//            }
+            } else {
+                System.out.println("Количество секций не совпадает: В пеге "+data[1].trim()+", в диасофт "+data[2].trim());
+            }
 
-//        try {
-//            FileInputStream fstream = new FileInputStream("C:/tmp/2.txt");
-//            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-//            String pattern = "(.*): Не найдено соответствие секции по хэшу";
-//            Pattern r = Pattern.compile(pattern);
-//            Set<String> set = new HashSet<>();
-//            String strLine;
-//            while ((strLine = br.readLine()) != null) {
-//                Matcher m = r.matcher(strLine);
-//                if (m.find()) {
-//                  //  System.out.println(strLine);
-//                    int start = strLine.indexOf("RnrcSystemUser") + 17;
-//                    int end = strLine.indexOf(": Не найдено");
-//                    set.add(strLine.substring(start, end));
-//                }
-//            }
-//            FileOutputStream stream = new FileOutputStream("C:/tmp/HashNotMatchSA.txt");
-//            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
-//            for (String s : set) {
-//                System.out.println(s);
-//                writer.write(s + "\n");
-//            }
-//            writer.flush();
-//        } catch (IOException e) {
-//            System.out.println("Ошибка");
-//        }
+        }
+    }
 
-//        FileInputStream fstream1 = new FileInputStream("C:/tmp/HashNotMatch.txt");
-//        BufferedReader br1 = new BufferedReader(new InputStreamReader(fstream1));
-//        FileInputStream fstream2 = new FileInputStream("C:/tmp/HashNotMatchSA.txt");
-//        BufferedReader br2 = new BufferedReader(new InputStreamReader(fstream2));
-//        String strLine;
-//        List<String> contracts = new ArrayList<>();
-//        while ((strLine = br1.readLine()) != null) {
-//            contracts.add(strLine);
-//        }
-//
-//        strLine = "";
-//        List<String> sa = new ArrayList<>();
-//        while ((strLine = br2.readLine()) != null) {
-//            sa.add(strLine);
-//        }
-//
-//        contracts.removeAll(sa);
-//
-//      contracts.forEach(System.out::println);
+    private static Map<String, String> getDifferenceOfHashWrongContracts(String source, Set<String> contractIDs) {
+        Set<String> set = new HashSet<>();
+        Map<String, String> results = new HashMap<>();
 
+        try (FileInputStream fstream = new FileInputStream(source);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fstream))) {
+            String pattern = "(.*) RnrcSystemUser - (.*)";
+            Pattern r = Pattern.compile(pattern);
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                Matcher m = r.matcher(strLine);
+                if (m.find()) {
+                    int start = strLine.indexOf("RnrcSystemUser") + 17;
+                    int end = strLine.length();
+                    //  System.out.println(strLine.substring(start, end));
+                    set.add(strLine.substring(start, end));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String contract : contractIDs) {
+            String pattern1 = contract + "(.*)";
+            String pattern2 = "(.*) Не найдено соответствие секции по хэшу";
+            String pattern3 = "(.*)совпадение(.*)";
+            Pattern r = Pattern.compile(pattern1);
+            Pattern r2 = Pattern.compile(pattern2);
+            Pattern r3 = Pattern.compile(pattern3);
+            for (String s : set) {
+                Matcher m = r.matcher(s);
+                Matcher m2 = r2.matcher(s);
+                Matcher m3 = r3.matcher(s);
+                if (m.find()) {
+                    if (!m2.find() && !m3.find()) {
+                        String[] q = s.split(":");
+                        results.put(q[0].trim(), q[1].trim());
+                    }
+                }
+            }
+        }
+        try (FileOutputStream stream = new FileOutputStream("C:/tmp/differences.txt");
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
+            for (String s : set) {
+                writer.write(s + "\n");
+            }
+            writer.flush();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        return results;
+    }
+
+    private static Set<String> getListOfWrongHash(String fileName) {
+        Set<String> set = new HashSet<>();
+        try (FileInputStream fstream = new FileInputStream(fileName);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fstream))) {
+            String pattern = "(.*): Не найдено соответствие секции по хэшу";
+            Pattern r = Pattern.compile(pattern);
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                Matcher m = r.matcher(strLine);
+                if (m.find()) {
+                    int start = strLine.indexOf("RnrcSystemUser") + 17;
+                    int end = strLine.indexOf(": Не найдено");
+                    //    System.out.println(strLine.substring(start, end) + ", ");
+                    set.add(strLine.substring(start, end));
+                }
+            }
+            FileOutputStream stream = new FileOutputStream("C:/tmp/HashNotMatchSA.txt");
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
+            for (String s : set) {
+                //    System.out.println(s);
+                writer.write(s + "\n");
+            }
+            writer.flush();
+        } catch (IOException e) {
+            System.out.println("Ошибка");
+        }
+        return set;
+    }
 
 }
