@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-    private static final String SOURCE = "C:/tmp/PegaRULES.txt";
+    private static final String SOURCE = "C:/tmp/PegaRULES3105.txt";
 
     public static void main(String[] args) throws IOException {
         Set<String> contracts = getListOfWrongHash(SOURCE);
@@ -21,21 +21,25 @@ public class Main {
            if (data[0].equals("")){
                System.out.println("В договоре нет допсов");
            } else {
-               System.out.println("Допсы по договору: ");
-               System.out.println(data[0]);
+               System.out.println("Допсы по договору: "+data[0]);
+              // System.out.println(data[0]);
            }
-            if (data[1].trim().equals(data[2].trim())){
-                int sectionsNum = Integer.parseInt(data[1].trim());
+         String[]la = data[1].split(" ");
+         String[]bi = data[2].split(" ");
+            System.out.println("Количество убытков: "+la[2]);
+            System.out.println("Количество бордеро и счетов: "+bi[2]);
+            if (data[3].trim().equals(data[4].trim())){
+                int sectionsNum = Integer.parseInt(data[3].trim());
                 System.out.println("Количество секций в диасофте и пеге совпадает: "+sectionsNum);
-                for (int i = 3; i < 3+sectionsNum; i++) {
-                    System.out.println("Секция "+(i-2)+" в Пега: "+data[i].trim());
+                for (int i = 5; i < 5+sectionsNum; i++) {
+                    System.out.println("Секция "+(i-4)+" в Пега: "+data[i].trim());
                 }
-                for (int i = 3+sectionsNum; i < 3+sectionsNum*2; i++) {
-                    System.out.println("Секция "+(i-2-sectionsNum)+" в Диасофт: "+data[i].trim());
+                for (int i = 5+sectionsNum; i < 5+sectionsNum*2; i++) {
+                    System.out.println("Секция "+(i-4-sectionsNum)+" в Диасофт: "+data[i].trim());
                 }
 
             } else {
-                System.out.println("Количество секций не совпадает: В пеге "+data[1].trim()+", в диасофт "+data[2].trim());
+                System.out.println("Количество секций не совпадает: В пеге "+data[3].trim()+", в диасофт "+data[4].trim());
             }
 
         }
