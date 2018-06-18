@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-    private static final String SOURCE = "C:/tmp/PegaRULES3105.txt";
+    private static final String SOURCE = "C:/Users/Shomakhov/Downloads/PegaRULES (1).log";
 
     public static void main(String[] args) throws IOException {
         Set<String> contracts = getListOfWrongHash(SOURCE);
@@ -37,7 +37,6 @@ public class Main {
                 for (int i = 5+sectionsNum; i < 5+sectionsNum*2; i++) {
                     System.out.println("Секция "+(i-4-sectionsNum)+" в Диасофт: "+data[i].trim());
                 }
-
             } else {
                 System.out.println("Количество секций не совпадает: В пеге "+data[3].trim()+", в диасофт "+data[4].trim());
             }
@@ -71,15 +70,18 @@ public class Main {
             String pattern1 = contract + "(.*)";
             String pattern2 = "(.*) Не найдено соответствие секции по хэшу";
             String pattern3 = "(.*)совпадение(.*)";
+            String pattern4 = "(.*)платежей(.*)";
             Pattern r = Pattern.compile(pattern1);
             Pattern r2 = Pattern.compile(pattern2);
             Pattern r3 = Pattern.compile(pattern3);
+            Pattern r4 = Pattern.compile(pattern4);
             for (String s : set) {
                 Matcher m = r.matcher(s);
                 Matcher m2 = r2.matcher(s);
                 Matcher m3 = r3.matcher(s);
+                Matcher m4 = r4.matcher(s);
                 if (m.find()) {
-                    if (!m2.find() && !m3.find()) {
+                    if (!m2.find() && !m3.find() && !m4.find()) {
                         String[] q = s.split(":");
                         results.put(q[0].trim(), q[1].trim());
                     }
