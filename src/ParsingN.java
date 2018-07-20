@@ -6,12 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ParsingN {
-    private static final String SOURCE = "C:/Users/Shomakhov/Downloads/PegaRULES (5).log";
-
+    private static final String SOURCE = "C:/Users/Shomakhov/Downloads/PegaRULES (14).log";
+private static final String PATTERN = "Parsing2:";
     public static void main(String[] args) {
         try (FileInputStream fstream = new FileInputStream(SOURCE);
              BufferedReader br = new BufferedReader(new InputStreamReader(fstream))) {
-            String pattern = "(.*)Parsing2(.*)";
+            String pattern = "(.*)"+PATTERN+"(.*)";
 
             Pattern r = Pattern.compile(pattern);
 
@@ -20,7 +20,7 @@ public class ParsingN {
                 Matcher m = r.matcher(strLine);
 
                 if (m.find()) {
-                    String s = strLine.substring(strLine.indexOf("RnrcSystemUser -")+16);
+                    String s = strLine.substring(strLine.indexOf(PATTERN)+9);
 
                     System.out.println(s);
 
