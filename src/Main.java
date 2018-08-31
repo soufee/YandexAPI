@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-    private static final String SOURCE = "C:/Users/Shomakhov/Downloads/PegaRULES (1).log";
+    private static final String SOURCE = "C:/tmp/logsforparse/PegaRULES (3).log";
 
     public static void main(String[] args) throws IOException {
         Set<String> contracts = getListOfWrongHash(SOURCE);
@@ -30,7 +30,7 @@ public class Main {
             System.out.println("Количество бордеро и счетов: "+bi[2]);
             if (data[3].trim().equals(data[4].trim())){
                 int sectionsNum = Integer.parseInt(data[3].trim());
-                System.out.println("Количество секций в диасофте и пеге совпадает: "+sectionsNum);
+                System.out.println("Количество секций в диасофте и пеге не совпадает: "+sectionsNum);
                 for (int i = 5; i < 5+sectionsNum; i++) {
                     System.out.println("Секция "+(i-4)+" в Пега: "+data[i].trim());
                 }
@@ -88,7 +88,7 @@ public class Main {
                 }
             }
         }
-        try (FileOutputStream stream = new FileOutputStream("C:/tmp/differences.txt");
+        try (FileOutputStream stream = new FileOutputStream("C:/tmp/logsforparse/differences.txt");
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream))) {
             for (String s : set) {
                 writer.write(s + "\n");
@@ -116,7 +116,7 @@ public class Main {
                     set.add(strLine.substring(start, end));
                 }
             }
-            FileOutputStream stream = new FileOutputStream("C:/tmp/HashNotMatchSA.txt");
+            FileOutputStream stream = new FileOutputStream("C:/tmp/logsforparse/HashNotMatchSA.txt");
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
             for (String s : set) {
                 //    System.out.println(s);
